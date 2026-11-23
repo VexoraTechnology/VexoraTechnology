@@ -1,0 +1,39 @@
+name: Profile 3D contributions
+
+on:
+  schedule:
+    - cron: "30 18 * * *" # 00:00 IST every day, so yesterday's contributions are included
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/profile-3d.yml"] # generates the first image as soon as this file lands
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-3d
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    name: Render contributions as a 3D night-view city
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+      - name: Commit the refreshed image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile-3d-contrib
+          if git diff --cached --quiet; then
+            echo "No change to commit."
+          else
+            git commit -m "chore: refresh 3D contributions"
+            git push
+          fi

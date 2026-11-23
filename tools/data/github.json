@@ -1,0 +1,96 @@
+{
+ "fetched": "2026-11-16",
+ "source": "github.com repo pages for stars/forks; commit dates from metadata-only git clones (UTC days, like GitHub's own graph). Refresh: python tools/build.py --refresh",
+ "profile": {
+  "login": "Itzjay169",
+  "public_repos": 8,
+  "joined": "2026-10-16"
+ },
+ "repos": [
+  {
+   "name": "Flowra",
+   "language": "Dart",
+   "stars": 0,
+   "forks": 0,
+   "commits": 34,
+   "created": "2026-11-01",
+   "daily": {
+    "2026-09-25": 8,
+    "2026-09-26": 6,
+    "2026-09-28": 1,
+    "2026-09-29": 5,
+    "2026-11-01": 10,
+    "2026-11-02": 3,
+    "2026-11-03": 1
+   }
+  },
+  {
+   "name": "Finflow",
+   "language": "JavaScript",
+   "stars": 0,
+   "forks": 0,
+   "commits": 21,
+   "created": "2026-11-09",
+   "daily": {
+    "2026-10-09": 8,
+    "2026-10-10": 5,
+    "2026-11-09": 6,
+    "2026-11-10": 2
+   }
+  },
+  {
+   "name": "F.R.I.D.A.Y",
+   "language": "JavaScript",
+   "stars": 0,
+   "forks": 0,
+   "commits": 19,
+   "created": "2026-10-28",
+   "daily": {
+    "2026-10-28": 12,
+    "2026-11-04": 7
+   }
+  },
+  {
+   "name": "Vexora",
+   "language": "JavaScript",
+   "stars": 0,
+   "forks": 0,
+   "commits": 17,
+   "created": "2026-10-16",
+   "daily": {
+    "2026-10-16": 11,
+    "2026-10-19": 6
+   }
+  },
+  {
+   "name": "IntelliResult-Nexus",
+   "language": "Java",
+   "stars": 0,
+   "forks": 0,
+   "commits": 8,
+   "created": "2026-11-10",
+   "daily": {
+    "2026-09-25": 1,
+    "2026-11-10": 4,
+    "2026-11-11": 3
+   }
+  },
+  {
+   "name": "Distributeder",
+   "language": "TypeScript",
+   "stars": 0,
+   "forks": 0,
+   "commits": 2,
+   "created": "2026-10-26",
+   "daily": {
+    "2026-10-26": 2
+   }
+  }
+ ],
+ "authors": {
+  "Itz30jay": 58,
+  "Itzjay169": 21,
+  "Antigravity": 21,
+  "Jaykishan Das": 1
+ }
+}

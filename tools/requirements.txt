@@ -1,0 +1,10 @@
+pillow>=10
+numpy
+scipy
+fonttools
+brotli
+# optional
+playwright      # tools/verify.py and the browser tests (then: playwright install chromium)
+imageio-ffmpeg  # bundled ffmpeg for --video when ffmpeg is not installed
+pytest
+pyyaml
