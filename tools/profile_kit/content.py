@@ -11,7 +11,7 @@ from .kit import CYAN, PINK, VIOLET
 DATA = Path(__file__).resolve().parents[1] / "data"
 
 NAME = "Jaykishan Das"
-HANDLE = "Itzjay169"
+HANDLE = "VexoraTechnology"
 ROLE = "Full Stack Web Developer"
 COMPANY = "Vexora Technology"
 LOCATION = "Balasore, Odisha, India"

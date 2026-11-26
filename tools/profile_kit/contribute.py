@@ -87,7 +87,9 @@ def activity(d: Doc, gh: dict, repos: list[dict], colors: list[str]) -> tuple[st
     """Stacked commits per day, month ticks, a project-by-day grid and a scanning highlight."""
     first, end = gh["first_day"], gh["fetched_date"]
     n_days = (end - first).days + 1
-    x_of = lambda i: GRID_X + i * COLW
+    colw = min(64.0, max(COLW, 660.0 / max(n_days, 1)))
+    cell_w = min(24.0, colw * 0.76) if colw > COLW else CELL_W
+    x_of = lambda i: GRID_X + i * colw
     base, tallest = 172, 84
     peak = max(gh["per_day"].values())
     scale = tallest / peak
@@ -119,14 +121,19 @@ def activity(d: Doc, gh: dict, repos: list[dict], colors: list[str]) -> tuple[st
             t0 = .6 + seg_order * .045
             grow = animate("height", [(0, 0), (t0, 0), (t0 + .7, h), (11.2, h), (11.7, 0)], LOOP, ease="out")
             rise = animate("y", [(0, base), (t0, base), (t0 + .7, y), (11.2, y), (11.7, base)], LOOP, ease="out")
-            out.append(f'<rect x="{fmt(x_of(idx) + (COLW - CELL_W) / 2)}" y="{fmt(y)}" width="{CELL_W}" height="{fmt(h)}" rx="2" fill="{colors[ri]}">{grow}{rise}</rect>')
+            out.append(f'<rect x="{fmt(x_of(idx) + (colw - cell_w) / 2)}" y="{fmt(y)}" width="{fmt(cell_w)}" height="{fmt(h)}" rx="2" fill="{colors[ri]}">{grow}{rise}</rect>')
             stack += n * scale
             seg_order += 1
 
     # busiest day callout
     best_day, best_n = gh["busiest"]
     bi = (date.fromisoformat(best_day) - first).days
-    out.append(d.t(f"{best_n} commits on {day_label(date.fromisoformat(best_day))}", "d7", x_of(bi) - 8, base - best_n * scale + 11, 11.5, fill=TEXT, anchor="end"))
+    callout = f"{best_n} {'commit' if best_n == 1 else 'commits'} on {day_label(date.fromisoformat(best_day))}"
+    if bi > 0 and x_of(bi) - GRID_X >= d.w_of("d7", callout, 11.5) + 22:
+        tx, ty, anchor = x_of(bi) - 8, base - best_n * scale + 11, "end"
+    else:
+        tx, ty, anchor = x_of(bi) + (colw - cell_w) / 2, base - tallest - 10, "start"
+    out.append(d.t(callout, "d7", tx, ty, 11.5, fill=TEXT, anchor=anchor))
 
     # month ticks along the bottom
     ticks = [(0, day_label(first), "start")]
@@ -135,10 +142,11 @@ def activity(d: Doc, gh: dict, repos: list[dict], colors: list[str]) -> tuple[st
         if day.day == 1 and day != first:
             ticks.append(((day - first).days, f"1 {day.strftime('%b')}", "start"))
         day += timedelta(days=1)
-    ticks.append((n_days - 1, day_label(end), "end"))
+    if n_days > 1:
+        ticks.append((n_days - 1, day_label(end), "end"))
     for idx, label, anchor in ticks:
-        out.append(f'<path d="M{fmt(x_of(idx) + COLW / 2)} {base}v5" stroke="#fff" stroke-opacity=".3"/>'
-                   + d.t(label, "d5", x_of(idx) + (0 if anchor == "start" else COLW), base + 20, 11, fill=DIM, anchor=anchor))
+        out.append(f'<path d="M{fmt(x_of(idx) + colw / 2)} {base}v5" stroke="#fff" stroke-opacity=".3"/>'
+                   + d.t(label, "d5", x_of(idx) + (0 if anchor == "start" else colw), base + 20, 11, fill=DIM, anchor=anchor))
 
     # project-by-day grid
     row0, pitch = base + 46, 25
@@ -150,17 +158,17 @@ def activity(d: Doc, gh: dict, repos: list[dict], colors: list[str]) -> tuple[st
         for i in range(n_days):
             n = daily.get(i, 0)
             if not n:
-                out.append(f'<rect x="{fmt(x_of(i) + (COLW - CELL_W) / 2)}" y="{y}" width="{CELL_W}" height="16" rx="3" fill="#fff" fill-opacity=".05"/>')
+                out.append(f'<rect x="{fmt(x_of(i) + (colw - cell_w) / 2)}" y="{y}" width="{fmt(cell_w)}" height="16" rx="3" fill="#fff" fill-opacity=".05"/>')
                 continue
             level = .4 if n == 1 else .6 if n <= 3 else .82 if n <= 6 else 1
             t0 = .5 + i * .05
             appear = animate("opacity", [(0, 0), (t0, 0), (t0 + .35, level), (11.2, level), (11.7, 0)], LOOP, ease="out")
-            out.append(f'<rect x="{fmt(x_of(i) + (COLW - CELL_W) / 2)}" y="{y}" width="{CELL_W}" height="16" rx="3" fill="{colors[ri]}" opacity="{level}">{appear}</rect>')
+            out.append(f'<rect x="{fmt(x_of(i) + (colw - cell_w) / 2)}" y="{y}" width="{fmt(cell_w)}" height="16" rx="3" fill="{colors[ri]}" opacity="{level}">{appear}</rect>')
     grid_bottom = row0 + (len(repos) - 1) * pitch + 16
 
     # scanning highlight sweeping across the whole chart
-    sweep = animate_transform("translate", [(0, "0 0"), (8, f"{fmt(n_days * COLW)} 0")], 8)
-    out.append(f'<rect x="{GRID_X}" y="{base - tallest - 6}" width="{COLW}" height="{fmt(grid_bottom - (base - tallest - 6) + 4)}" rx="3" fill="#fff" opacity=".07">{sweep}</rect>')
+    sweep = animate_transform("translate", [(0, "0 0"), (8, f"{fmt(n_days * colw)} 0")], 8)
+    out.append(f'<rect x="{GRID_X}" y="{base - tallest - 6}" width="{fmt(colw)}" height="{fmt(grid_bottom - (base - tallest - 6) + 4)}" rx="3" fill="#fff" opacity=".07">{sweep}</rect>')
     fade = animate("opacity", [(0, 0), (.4, 1), (11.3, 1), (11.8, 0)], LOOP)
     return f'<g>{fade}{"".join(out)}</g>', int(grid_bottom + 26)
 
@@ -170,7 +178,7 @@ def build(gh: dict) -> str:
     colors = ramp(len(repos))
     total = sum(r["commits"] for r in repos)
     d = Doc("co", W, 10, "Contributions by project",
-            f"{total} commits across {len(repos)} projects between {day_label(gh['first_day'])} and {day_label(gh['last_day'])}, on {gh['active_days']} active days; "
+            f"{total} {'commit' if total == 1 else 'commits'} across {len(repos)} {'project' if len(repos) == 1 else 'projects'} between {day_label(gh['first_day'])} and {day_label(gh['last_day'])}, on {gh['active_days']} active {'day' if gh['active_days'] == 1 else 'days'}; "
             + ", ".join(f"{r['name']} {r['commits']}" for r in repos) + ".")
     card1_h = 372
     body2, card2_h = activity(d, gh, repos, colors)
